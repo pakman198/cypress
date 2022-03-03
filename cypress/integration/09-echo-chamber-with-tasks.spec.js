@@ -1,11 +1,16 @@
 /// <reference types="cypress" />
 
 const user = {
-  email: `${Date.now()}@example.com`,
+  email: `user@example.com`,
   password: 'password123',
 };
 
 describe('Sign Up', () => {
+
+  beforeEach(() => {
+    cy.task('reset');
+  })
+
   it('should successfully create a user when entering an email and a password', () => {
     // Sign Up
     cy.visit('/echo-chamber/sign-up');
@@ -22,4 +27,21 @@ describe('Sign Up', () => {
     cy.location('pathname').should('contain', '/echo-chamber/posts');
     cy.contains('Signed in as ' + user.email);
   });
+
+  it.only('should try to signup an existing user', () => {
+    const seededUser = {
+      email: 'first@example.com',
+      password: 'password123'
+    }
+    
+    cy.task('seed');
+
+    cy.visit('/echo-chamber/sign-up');
+    cy.get('[data-test="sign-up-email"]').type(seededUser.email);
+    cy.get('[data-test="sign-up-password"]').type(seededUser.password);
+    cy.get('[data-test="sign-up-submit"]').click();
+
+    cy.contains('A user already exists with that email.')
+
+  })
 });
