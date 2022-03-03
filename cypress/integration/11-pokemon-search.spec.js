@@ -16,15 +16,44 @@ describe('Pokémon Search', () => {
     cy.intercept('/pokemon-search/api?*').as('api');
   });
 
-  it('should call the API when the user types', () => {});
+  it('should call the API when the user types', () => {
+    cy.get('@search').type('pikachu');
 
-  it('should update the query parameter', () => {});
+    cy.wait('@api')
+  });
 
-  it('should call the API with correct query parameter', () => {});
+  it('should update the query parameter', () => {
+    cy.get('@search').type('pikachu');
 
-  it('should pre-populate the search field with the query parameter', () => {});
+    cy.wait('@api')
 
-  it('should render the results to the page', () => {});
+    cy.location('search').should('contain', 'name=pikachu')
+  });
+
+  it('should call the API with correct query parameter', () => {
+    cy.get('@search').type('pikachu');
+
+    cy.wait('@api').its('request.url').should('contain', 'name=pikachu')
+  });
+
+  it('should pre-populate the search field with the query parameter', () => {
+    cy.visit({ url: 'pokemon-search', qs: { name: 'char'}})
+
+    cy.get('@search').should('have.value', 'char')
+  });
+
+  it.only('should render the results to the page', () => {
+    cy.intercept('/pokemon-search/api?*', { pokemon }).as('stubbed');
+    cy.get('@search').type('ivy')
+
+    cy.wait('@stubbed')
+
+    cy.get('[data-test="results"]').children().its('length').should('equal', 3)
+
+    // console.log(cy.get('@results'))
+
+    // expect(cy.get('@results').length).to.equal(3)
+  });
 
   it('should link to the correct pokémon', () => {});
 
